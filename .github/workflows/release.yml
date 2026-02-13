@@ -22,21 +22,19 @@ jobs:
         arch: x64
 
     - name: Configure CMake (Release)
-      run: cmake --preset release
+      run: cmake --preset release -DDLLTOOLS_BUILD_TESTS=OFF
 
     - name: Build (Release)
       run: cmake --build --preset release --config Release
 
     - name: Find DLLTools executable
-      id: find_exe
+      shell: powershell
       run: |
-        $exe = Get-ChildItem -Path build -Filter "dlltools.exe" -Recurse | Select-Object -First 1
-        Write-Output "Found exe at: $($exe.FullName)"
-        Write-Output "exe_path=$($exe.FullName)" >> $env:GITHUB_OUTPUT
+        Get-ChildItem -Path . -Filter "dlltools.exe" -Recurse | Select-Object -First 1 -ExpandProperty FullName
 
     - name: Create Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
-        files: ${{ steps.find_exe.outputs.exe_path }}
+        files: |
+          build/release/bin/Release/dlltools.exe
         generate_release_notes: true
-        draft: true
