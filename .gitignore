@@ -70,3 +70,6 @@ test-*.xml
 *.zip
 *.tar.gz
 *.tar.bz2
+
+# Exception: keep test PE data files
+!tests/test_data/*.dll
