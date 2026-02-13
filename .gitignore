@@ -1,0 +1,72 @@
+# Build directories
+build/
+install/
+out/
+cmake-build-*/
+
+# Visual Studio
+.vs/
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.sln
+*.suo
+*.user
+*.sln.docstates
+
+# Compiled files
+*.obj
+*.o
+*.exe
+*.dll
+*.lib
+*.a
+*.so
+*.so.*
+*.dylib
+*.pdb
+*.ilk
+*.exp
+*.map
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+compile_commands.json
+CMakeSettings.json
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.cproject
+.settings/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Package managers
+vcpkg_installed/
+conan/
+
+# Test output
+Testing/
+test-*.xml
+*.test
+
+# Distribution
+*.zip
+*.tar.gz
+*.tar.bz2

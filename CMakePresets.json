@@ -1,0 +1,92 @@
+{
+    "version": 3,
+    "configurePresets": [
+        {
+            "name": "msvc-base",
+            "hidden": true,
+            "generator": "Visual Studio 17 2022",
+            "architecture": "x64",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "installDir": "${sourceDir}/install/${presetName}",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": {
+                    "type": "STRING",
+                    "value": ""
+                }
+            }
+        },
+        {
+            "name": "debug",
+            "displayName": "Debug",
+            "description": "Debug build with MSVC",
+            "inherits": "msvc-base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "DLLTOOLS_BUILD_TESTS": "ON"
+            }
+        },
+        {
+            "name": "release",
+            "displayName": "Release",
+            "description": "Release build with MSVC optimizations",
+            "inherits": "msvc-base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "DLLTOOLS_BUILD_TESTS": "ON"
+            }
+        },
+        {
+            "name": "release-with-tests",
+            "displayName": "Release with Tests",
+            "description": "Release build including unit tests",
+            "inherits": "release"
+        },
+        {
+            "name": "release-no-tests",
+            "displayName": "Release (No Tests)",
+            "description": "Release build without unit tests",
+            "inherits": "release",
+            "cacheVariables": {
+                "DLLTOOLS_BUILD_TESTS": "OFF"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "debug",
+            "displayName": "Build Debug",
+            "configurePreset": "debug"
+        },
+        {
+            "name": "release",
+            "displayName": "Build Release",
+            "configurePreset": "release"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "debug",
+            "displayName": "Test Debug",
+            "configurePreset": "debug",
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "noTestsAction": "error",
+                "stopOnFailure": false
+            }
+        },
+        {
+            "name": "release",
+            "displayName": "Test Release",
+            "configurePreset": "release",
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "noTestsAction": "error",
+                "stopOnFailure": false
+            }
+        }
+    ]
+}

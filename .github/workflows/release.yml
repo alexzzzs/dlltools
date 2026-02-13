@@ -1,0 +1,42 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Setup MSVC Developer Command Prompt
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: x64
+
+    - name: Configure CMake (Release)
+      run: cmake --preset release
+
+    - name: Build (Release)
+      run: cmake --build --preset release --config Release
+
+    - name: Find DLLTools executable
+      id: find_exe
+      run: |
+        $exe = Get-ChildItem -Path build -Filter "dlltools.exe" -Recurse | Select-Object -First 1
+        Write-Output "Found exe at: $($exe.FullName)"
+        Write-Output "exe_path=$($exe.FullName)" >> $env:GITHUB_OUTPUT
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ${{ steps.find_exe.outputs.exe_path }}
+        generate_release_notes: true
+        draft: true

@@ -1,0 +1,76 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+  workflow_dispatch:
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Debug
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Setup MSVC Developer Command Prompt
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: x64
+
+    - name: Configure CMake
+      run: cmake --preset debug
+
+    - name: Build
+      run: cmake --build --preset debug --config Debug
+
+    - name: Run Tests
+      working-directory: ${{github.workspace}}/build/debug
+      run: ctest -C Debug --output-on-failure
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: dlltools-debug
+        path: |
+          ${{github.workspace}}/build/debug/bin/*.exe
+          ${{github.workspace}}/build/debug/bin/*.dll
+        retention-days: 7
+
+  release-build:
+    runs-on: windows-latest
+    needs: build
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Setup MSVC Developer Command Prompt
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: x64
+
+    - name: Configure CMake (Release)
+      run: cmake --preset release
+
+    - name: Build (Release)
+      run: cmake --build --preset release --config Release
+
+    - name: Upload release artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: dlltools-release
+        path: |
+          ${{github.workspace}}/build/release/bin/*.exe
+          ${{github.workspace}}/build/release/bin/*.dll
+        retention-days: 30
