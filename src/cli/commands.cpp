@@ -6,6 +6,7 @@
 #include "core/resource.hpp"
 #include "core/security.hpp"
 #include "core/entropy.hpp"
+#include "core/rich.hpp"
 #include "utils/string_utils.hpp"
 #include <iostream>
 
@@ -36,6 +37,9 @@ int CommandExecutor::execute(const Command& cmd) {
             
         case CommandType::Resources:
             return cmd_resources(cmd);
+            
+        case CommandType::Rich:
+            return cmd_rich(cmd);
             
         case CommandType::Help:
             print_help();
@@ -197,6 +201,27 @@ int CommandExecutor::cmd_resources(const Command& cmd) {
     
     OutputFormatter formatter(cmd.global.json_output, cmd.global.verbose, "", cmd.global.colour_output);
     formatter.print_resources(resources);
+    
+    return 0;
+}
+
+int CommandExecutor::cmd_rich(const Command& cmd) {
+    auto pe_result = PEParser::parse(cmd.global.input_file);
+    if (!pe_result) {
+        print_error(pe_result.error());
+        return 1;
+    }
+    
+    const auto& pe = *pe_result;
+    
+    auto rich_result = pe.rich_header();
+    if (!rich_result) {
+        print_error(rich_result.error());
+        return 1;
+    }
+    
+    OutputFormatter formatter(cmd.global.json_output, cmd.global.verbose, "", cmd.global.colour_output);
+    formatter.print_rich(rich_result->get());
     
     return 0;
 }

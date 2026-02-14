@@ -17,6 +17,7 @@ enum class CommandType {
     Entropy,    ///< Entropy analysis
     Security,   ///< Security features display
     Resources,  ///< Resource enumeration
+    Rich,       ///< Rich Header display
     Help,       ///< Show help
     Version     ///< Show version
 };

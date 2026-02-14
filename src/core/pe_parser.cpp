@@ -4,6 +4,7 @@
 #include "core/export.hpp"
 #include "core/resource.hpp"
 #include "core/security.hpp"
+#include "core/rich.hpp"
 
 namespace dlltools {
 
@@ -195,6 +196,17 @@ Result<std::reference_wrapper<const ResourceTable>> PEFile::resources() const {
         resources_ = std::make_unique<ResourceTable>(std::move(*result));
     }
     return std::cref(*resources_);
+}
+
+Result<std::reference_wrapper<const RichHeader>> PEFile::rich_header() const {
+    if (!rich_header_) {
+        auto result = RichHeader::parse(*this);
+        if (!result) {
+            return std::unexpected(std::move(result).error());
+        }
+        rich_header_ = std::make_unique<RichHeader>(std::move(*result));
+    }
+    return std::cref(*rich_header_);
 }
 
 // =============================================================================

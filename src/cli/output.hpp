@@ -6,6 +6,7 @@
 #include "core/export.hpp"
 #include "core/resource.hpp"
 #include "core/security.hpp"
+#include "core/rich.hpp"
 #include "cli/colours.hpp"
 #include <iostream>
 #include <string>
@@ -46,6 +47,9 @@ public:
     
     /// Print resource table
     void print_resources(const ResourceTable& resources);
+    
+    /// Print Rich Header
+    void print_rich(const RichHeader& rich);
     
 private:
     bool json_;
