@@ -96,15 +96,12 @@ Result<RichHeader> RichHeader::parse(const PEFile& pe) {
             rich_offset = static_cast<uint32_t>(i);
             
             // XOR key follows the "Rich" marker
-            // Need at least 4 bytes after "Rich" for the key
-            if (i + 12 <= static_cast<size_t>(e_lfanew)) {
+            // Need at least 4 bytes after "Rich" for the key (i + 8 total for both)
+            if (i + 8 <= static_cast<size_t>(e_lfanew)) {
                 std::memcpy(&xor_key, data + i + 4, sizeof(uint32_t));
-                found = true;
-                break;
-            } else {
-                // "Rich" found but not enough room for XOR key - invalid
-                return RichHeader{};
             }
+            found = true;
+            break;
         }
     }
     
@@ -152,9 +149,10 @@ Result<RichHeader> RichHeader::parse(const PEFile& pe) {
         uint32_t decoded1 = entry_data[1] ^ xor_key;
         
         // Extract fields
+        // Rich header format: upper 16 bits = product/comp ID, lower 16 bits = build number
         RichEntry entry;
-        entry.id = static_cast<uint16_t>(decoded0 & 0xFFFF);
-        entry.version = static_cast<uint16_t>((decoded0 >> 16) & 0xFFFF);
+        entry.id = static_cast<uint16_t>((decoded0 >> 16) & 0xFFFF);  // Product/comp ID
+        entry.version = static_cast<uint16_t>(decoded0 & 0xFFFF);       // Build number
         entry.count = decoded1;
         
         // Skip zero entries (padding)
@@ -163,29 +161,34 @@ Result<RichHeader> RichHeader::parse(const PEFile& pe) {
         }
     }
     
-    // Validate checksum
-    // The checksum is calculated by XOR'ing all data from DOS header to "Rich"
-    // with the XOR key, and the result should be 0
+    // Validate checksum using standard Rich algorithm
+    // 1. Compute rol_sum over first 64 DOS-header bytes (skip e_lfanew at 0x3C-0x3F)
+    // 2. XOR that rol_sum with encoded DanS block bytes
+    // 3. Result should equal xor_key
     
-    bool checksum_valid = true;
-    uint32_t checksum = 0;
+    bool checksum_valid = false;
     
-    // XOR all DWORDs from DOS header end to "Rich" marker
-    for (size_t i = rich_start; i < rich_offset; i += 4) {
-        uint32_t value;
-        std::memcpy(&value, data + i, sizeof(uint32_t));
-        checksum ^= value;
+    // Compute rol_sum over DOS header bytes 0-63, skipping e_lfanew (0x3C-0x3F)
+    uint32_t rol_sum = 0;
+    for (size_t i = 0; i < 64; ++i) {
+        // Skip the e_lfanew field at offset 0x3C-0x3F
+        if (i >= 0x3C && i < 0x40) {
+            continue;
+        }
+        uint8_t byte = data[i];
+        // Rotate left by 1 bit
+        rol_sum = ((rol_sum << 1) | (rol_sum >> 31)) & 0xFFFFFFFF;
+        // Add byte
+        rol_sum = (rol_sum + byte) & 0xFFFFFFFF;
     }
     
-    // XOR with the key - result should be 0 for valid checksum
-    checksum ^= xor_key;
-    
-    // Also XOR the "Rich" marker itself
-    checksum ^= RICH_MAGIC;
-    
-    if (checksum != 0) {
-        checksum_valid = false;
+    // XOR the encoded DanS block bytes (between entries_start and rich_offset)
+    for (size_t i = entries_start; i < rich_offset; ++i) {
+        rol_sum ^= static_cast<uint32_t>(data[i]);
     }
+    
+    // The result should equal the xor_key
+    checksum_valid = (rol_sum == xor_key);
     
     // Calculate size
     uint32_t header_size = rich_offset - rich_start + 8;  // Include "Rich" and XOR key

@@ -736,9 +736,9 @@ void OutputFormatter::print_rich(const RichHeader& rich) {
             std::cout << "      \"id\": " << entry.id << ",\n";
             std::cout << "      \"version\": " << entry.version << ",\n";
             std::cout << "      \"count\": " << entry.count << ",\n";
-            std::cout << "      \"tool_name\": \"";
+            std::cout << "      \"tool_name\": ";
             print_json_string(std::cout, rich.tool_name(entry.id));
-            std::cout << "\"\n";
+            std::cout << "\n";
             std::cout << "    }";
             if (i < entries.size() - 1) std::cout << ",";
             std::cout << "\n";

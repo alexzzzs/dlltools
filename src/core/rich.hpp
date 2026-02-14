@@ -27,8 +27,8 @@ class PEFile;
 
 /// Rich Header entry representing a tool used during compilation
 struct RichEntry {
-    uint16_t id = 0;           ///< Tool ID (e.g., link.exe, cvtres.exe, cl.exe)
-    uint16_t version = 0;      ///< Tool version
+    uint16_t id = 0;           ///< Product/comp ID (e.g., 0x0015 for link.exe)
+    uint16_t version = 0;      ///< Build number
     uint32_t count = 0;        ///< Number of times this tool was used
 };
 
@@ -44,17 +44,19 @@ enum class RichToolId : uint16_t {
     ImportLibrary = 7,    ///< Generated import library
     ExportTable = 8,      ///< Export table generation
     ImpLib = 9,           ///< lib.exe (import library tool)
-    // Common Visual Studio tool IDs
-    VS2003 = 0x0000,
-    VS2005 = 0x0001,
-    VS2008 = 0x0002,
-    VS2010 = 0x0003,
-    VS2012 = 0x0004,
-    VS2013 = 0x0005,
-    VS2015 = 0x0006,
-    VS2017 = 0x0007,
-    VS2019 = 0x0008,
-    VS2022 = 0x0009,
+    
+    // Visual Studio version markers (non-overlapping range starting at 0x8000)
+    // These are separate from the tool IDs above
+    VS2003 = 0x8000,
+    VS2005 = 0x8001,
+    VS2008 = 0x8002,
+    VS2010 = 0x8003,
+    VS2012 = 0x8004,
+    VS2013 = 0x8005,
+    VS2015 = 0x8006,
+    VS2017 = 0x8007,
+    VS2019 = 0x8008,
+    VS2022 = 0x8009,
 };
 
 /// Rich Header class following existing patterns (like ExportTable)
