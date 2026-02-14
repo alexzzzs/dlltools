@@ -36,10 +36,9 @@ PEFile::~PEFile() = default;
 // =============================================================================
 
 const IMAGE_FILE_HEADER& PEFile::file_header() const noexcept {
-    if (format_ == PEFormat::PE32Plus) {
-        return nt_headers64_->FileHeader;
-    }
-    return nt_headers32_->FileHeader;
+    return (format_ == PEFormat::PE32Plus) 
+        ? nt_headers64_->FileHeader 
+        : nt_headers32_->FileHeader;
 }
 
 // =============================================================================
@@ -47,87 +46,75 @@ const IMAGE_FILE_HEADER& PEFile::file_header() const noexcept {
 // =============================================================================
 
 uint16_t PEFile::optional_header_magic() const noexcept {
-    if (format_ == PEFormat::PE32Plus) {
-        return nt_headers64_->OptionalHeader.Magic;
-    }
-    return nt_headers32_->OptionalHeader.Magic;
+    return (format_ == PEFormat::PE32Plus)
+        ? nt_headers64_->OptionalHeader.Magic
+        : nt_headers32_->OptionalHeader.Magic;
 }
 
 uint16_t PEFile::subsystem() const noexcept {
-    if (format_ == PEFormat::PE32Plus) {
-        return nt_headers64_->OptionalHeader.Subsystem;
-    }
-    return nt_headers32_->OptionalHeader.Subsystem;
+    return (format_ == PEFormat::PE32Plus)
+        ? nt_headers64_->OptionalHeader.Subsystem
+        : nt_headers32_->OptionalHeader.Subsystem;
 }
 
 uint16_t PEFile::dll_characteristics() const noexcept {
-    if (format_ == PEFormat::PE32Plus) {
-        return nt_headers64_->OptionalHeader.DllCharacteristics;
-    }
-    return nt_headers32_->OptionalHeader.DllCharacteristics;
+    return (format_ == PEFormat::PE32Plus)
+        ? nt_headers64_->OptionalHeader.DllCharacteristics
+        : nt_headers32_->OptionalHeader.DllCharacteristics;
 }
 
 uint64_t PEFile::image_base() const noexcept {
-    if (format_ == PEFormat::PE32Plus) {
-        return nt_headers64_->OptionalHeader.ImageBase;
-    }
-    return nt_headers32_->OptionalHeader.ImageBase;
+    return (format_ == PEFormat::PE32Plus)
+        ? nt_headers64_->OptionalHeader.ImageBase
+        : nt_headers32_->OptionalHeader.ImageBase;
 }
 
 uint32_t PEFile::entry_point_rva() const noexcept {
-    if (format_ == PEFormat::PE32Plus) {
-        return nt_headers64_->OptionalHeader.AddressOfEntryPoint;
-    }
-    return nt_headers32_->OptionalHeader.AddressOfEntryPoint;
+    return (format_ == PEFormat::PE32Plus)
+        ? nt_headers64_->OptionalHeader.AddressOfEntryPoint
+        : nt_headers32_->OptionalHeader.AddressOfEntryPoint;
 }
 
 uint32_t PEFile::section_alignment() const noexcept {
-    if (format_ == PEFormat::PE32Plus) {
-        return nt_headers64_->OptionalHeader.SectionAlignment;
-    }
-    return nt_headers32_->OptionalHeader.SectionAlignment;
+    return (format_ == PEFormat::PE32Plus)
+        ? nt_headers64_->OptionalHeader.SectionAlignment
+        : nt_headers32_->OptionalHeader.SectionAlignment;
 }
 
 uint32_t PEFile::file_alignment() const noexcept {
-    if (format_ == PEFormat::PE32Plus) {
-        return nt_headers64_->OptionalHeader.FileAlignment;
-    }
-    return nt_headers32_->OptionalHeader.FileAlignment;
+    return (format_ == PEFormat::PE32Plus)
+        ? nt_headers64_->OptionalHeader.FileAlignment
+        : nt_headers32_->OptionalHeader.FileAlignment;
 }
 
 uint32_t PEFile::size_of_image() const noexcept {
-    if (format_ == PEFormat::PE32Plus) {
-        return nt_headers64_->OptionalHeader.SizeOfImage;
-    }
-    return nt_headers32_->OptionalHeader.SizeOfImage;
+    return (format_ == PEFormat::PE32Plus)
+        ? nt_headers64_->OptionalHeader.SizeOfImage
+        : nt_headers32_->OptionalHeader.SizeOfImage;
 }
 
 uint32_t PEFile::size_of_headers() const noexcept {
-    if (format_ == PEFormat::PE32Plus) {
-        return nt_headers64_->OptionalHeader.SizeOfHeaders;
-    }
-    return nt_headers32_->OptionalHeader.SizeOfHeaders;
+    return (format_ == PEFormat::PE32Plus)
+        ? nt_headers64_->OptionalHeader.SizeOfHeaders
+        : nt_headers32_->OptionalHeader.SizeOfHeaders;
 }
 
 uint32_t PEFile::size_of_code() const noexcept {
-    if (format_ == PEFormat::PE32Plus) {
-        return nt_headers64_->OptionalHeader.SizeOfCode;
-    }
-    return nt_headers32_->OptionalHeader.SizeOfCode;
+    return (format_ == PEFormat::PE32Plus)
+        ? nt_headers64_->OptionalHeader.SizeOfCode
+        : nt_headers32_->OptionalHeader.SizeOfCode;
 }
 
 uint32_t PEFile::size_of_initialized_data() const noexcept {
-    if (format_ == PEFormat::PE32Plus) {
-        return nt_headers64_->OptionalHeader.SizeOfInitializedData;
-    }
-    return nt_headers32_->OptionalHeader.SizeOfInitializedData;
+    return (format_ == PEFormat::PE32Plus)
+        ? nt_headers64_->OptionalHeader.SizeOfInitializedData
+        : nt_headers32_->OptionalHeader.SizeOfInitializedData;
 }
 
 uint32_t PEFile::size_of_uninitialized_data() const noexcept {
-    if (format_ == PEFormat::PE32Plus) {
-        return nt_headers64_->OptionalHeader.SizeOfUninitializedData;
-    }
-    return nt_headers32_->OptionalHeader.SizeOfUninitializedData;
+    return (format_ == PEFormat::PE32Plus)
+        ? nt_headers64_->OptionalHeader.SizeOfUninitializedData
+        : nt_headers32_->OptionalHeader.SizeOfUninitializedData;
 }
 
 // =============================================================================
@@ -135,10 +122,9 @@ uint32_t PEFile::size_of_uninitialized_data() const noexcept {
 // =============================================================================
 
 uint32_t PEFile::data_directory_count() const noexcept {
-    if (format_ == PEFormat::PE32Plus) {
-        return nt_headers64_->OptionalHeader.NumberOfRvaAndSizes;
-    }
-    return nt_headers32_->OptionalHeader.NumberOfRvaAndSizes;
+    return (format_ == PEFormat::PE32Plus)
+        ? nt_headers64_->OptionalHeader.NumberOfRvaAndSizes
+        : nt_headers32_->OptionalHeader.NumberOfRvaAndSizes;
 }
 
 const IMAGE_DATA_DIRECTORY* PEFile::data_directory(uint32_t index) const noexcept {
@@ -147,10 +133,9 @@ const IMAGE_DATA_DIRECTORY* PEFile::data_directory(uint32_t index) const noexcep
         return nullptr;
     }
     
-    if (format_ == PEFormat::PE32Plus) {
-        return &nt_headers64_->OptionalHeader.DataDirectory[index];
-    }
-    return &nt_headers32_->OptionalHeader.DataDirectory[index];
+    return (format_ == PEFormat::PE32Plus)
+        ? &nt_headers64_->OptionalHeader.DataDirectory[index]
+        : &nt_headers32_->OptionalHeader.DataDirectory[index];
 }
 
 bool PEFile::has_data_directory(uint32_t index) const noexcept {
@@ -170,10 +155,9 @@ const SectionTable& PEFile::sections() const {
 }
 
 const IMAGE_SECTION_HEADER* PEFile::section_headers() const noexcept {
-    if (format_ == PEFormat::PE32Plus) {
-        return IMAGE_FIRST_SECTION(nt_headers64_);
-    }
-    return IMAGE_FIRST_SECTION(nt_headers32_);
+    return (format_ == PEFormat::PE32Plus)
+        ? IMAGE_FIRST_SECTION(nt_headers64_)
+        : IMAGE_FIRST_SECTION(nt_headers32_);
 }
 
 // =============================================================================
@@ -233,20 +217,13 @@ std::optional<uint32_t> PEFile::rva_to_offset(uint32_t rva) const noexcept {
     for (uint16_t i = 0; i < count; ++i) {
         const auto& section = sections[i];
         
-        // Check if RVA falls within this section
-        if (rva >= section.VirtualAddress &&
-            rva < section.VirtualAddress + section.Misc.VirtualSize) {
-            
+        // Check if RVA falls within the section's virtual memory region
+        const uint32_t virtual_size = std::max<uint32_t>(section.Misc.VirtualSize, section.SizeOfRawData);
+        if (rva >= section.VirtualAddress && rva < section.VirtualAddress + virtual_size) {
+            // RVA is within the section - calculate offset
             uint32_t offset = rva - section.VirtualAddress;
-            return section.PointerToRawData + offset;
-        }
-        
-        // Also check raw size for sections with raw data
-        if (section.SizeOfRawData > 0 &&
-            rva >= section.VirtualAddress &&
-            rva < section.VirtualAddress + section.SizeOfRawData) {
             
-            uint32_t offset = rva - section.VirtualAddress;
+            // Ensure we don't go beyond the raw data
             if (offset < section.SizeOfRawData) {
                 return section.PointerToRawData + offset;
             }
