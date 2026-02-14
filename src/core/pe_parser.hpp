@@ -291,9 +291,23 @@ private:
     // Cached header pointers
     const IMAGE_DOS_HEADER* dos_header_ = nullptr;
     union {
-        const IMAGE_NT_HEADERS32* nt_headers32_ = nullptr;
+        const IMAGE_NT_HEADERS32* nt_headers32_;
         const IMAGE_NT_HEADERS64* nt_headers64_;
     };
+
+    // Private helper methods to reduce code duplication
+    [[nodiscard]] const IMAGE_NT_HEADERS32* nt_headers32() const noexcept {
+        return nt_headers32_;
+    }
+    [[nodiscard]] const IMAGE_NT_HEADERS64* nt_headers64() const noexcept {
+        return nt_headers64_;
+    }
+    [[nodiscard]] const IMAGE_OPTIONAL_HEADER32* optional_header32() const noexcept {
+        return &nt_headers32_->OptionalHeader;
+    }
+    [[nodiscard]] const IMAGE_OPTIONAL_HEADER64* optional_header64() const noexcept {
+        return &nt_headers64_->OptionalHeader;
+    }
 
     // Lazy-loaded tables (using unique_ptr for incomplete types)
     mutable std::unique_ptr<SectionTable> sections_;
