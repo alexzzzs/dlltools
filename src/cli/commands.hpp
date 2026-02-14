@@ -38,6 +38,9 @@ private:
     /// Execute resources command
     int cmd_resources(const Command& cmd);
     
+    /// Execute rich command
+    int cmd_rich(const Command& cmd);
+    
     /// Print error message
     void print_error(const Error& error);
 };

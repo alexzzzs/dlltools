@@ -68,6 +68,8 @@ Result<Command> parse_arguments(int argc, char* argv[]) {
         cmd.type = CommandType::Security;
     } else if (arg1 == "resources") {
         cmd.type = CommandType::Resources;
+    } else if (arg1 == "rich") {
+        cmd.type = CommandType::Rich;
     } else if (arg1 == "help" || arg1 == "--help" || arg1 == "-h") {
         cmd.type = CommandType::Help;
         return cmd;
@@ -136,6 +138,7 @@ Result<Command> parse_arguments(int argc, char* argv[]) {
         case CommandType::Entropy:
         case CommandType::Security:
         case CommandType::Resources:
+        case CommandType::Rich:
             if (cmd.global.input_file.empty()) {
                 return std::unexpected(Error::missing_argument("file"));
             }
@@ -158,6 +161,7 @@ const char* command_name(CommandType type) noexcept {
         case CommandType::Entropy:   return "entropy";
         case CommandType::Security:  return "security";
         case CommandType::Resources: return "resources";
+        case CommandType::Rich:     return "rich";
         case CommandType::Help:      return "help";
         case CommandType::Version:   return "version";
         default:                     return "unknown";
@@ -174,6 +178,7 @@ const char* command_usage(CommandType type) noexcept {
         case CommandType::Entropy:   return "dlltools entropy <file> [--json]";
         case CommandType::Security:  return "dlltools security <file> [--json]";
         case CommandType::Resources: return "dlltools resources <file> [--json]";
+        case CommandType::Rich:     return "dlltools rich <file> [--json]";
         case CommandType::Help:      return "dlltools help [command]";
         case CommandType::Version:   return "dlltools version";
         default:                     return "dlltools <command> [options]";
@@ -195,6 +200,7 @@ COMMANDS:
     entropy    Calculate section entropy
     security   Analyze security features
     resources  Enumerate resources
+    rich      Display Rich Header
 
 GLOBAL OPTIONS:
     --json         Output in JSON format

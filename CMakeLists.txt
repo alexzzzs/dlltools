@@ -69,6 +69,7 @@ add_library(dlltools_core STATIC
     src/core/entropy.cpp
     src/core/security.cpp
     src/core/resource.cpp
+    src/core/rich.cpp
     src/utils/file_mapping.cpp
     src/utils/string_utils.cpp
 )

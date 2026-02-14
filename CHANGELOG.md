@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Rich Header parsing for PE files (Microsoft compilation metadata)
+  - Located after DOS header, contains tool IDs and checksums
+  - Used for anti-tamper detection and build environment identification
+  - Supports Visual Studio tool ID lookup (VS2003-VS2022)
+  - CLI command: `dlltools rich <file>`
+
 ### Changed
 - Refactored PEFile accessor methods to reduce code duplication
 - Optimized RVA-to-offset conversion logic

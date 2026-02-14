@@ -36,6 +36,7 @@ class SectionTable;
 class ImportTable;
 class ExportTable;
 class ResourceTable;
+class RichHeader;
 struct SecurityFeatures;
 
 /**
@@ -241,6 +242,9 @@ public:
     /// Get resource table (lazy-loaded)
     [[nodiscard]] Result<std::reference_wrapper<const ResourceTable>> resources() const;
 
+    /// Get Rich Header (lazy-loaded)
+    [[nodiscard]] Result<std::reference_wrapper<const RichHeader>> rich_header() const;
+
     // =========================================================================
     // Security Analysis
     // =========================================================================
@@ -314,6 +318,7 @@ private:
     mutable std::unique_ptr<ImportTable> imports_;
     mutable std::unique_ptr<ExportTable> exports_;
     mutable std::unique_ptr<ResourceTable> resources_;
+    mutable std::unique_ptr<RichHeader> rich_header_;
 };
 
 /// PE Parser - static factory for creating PEFile instances

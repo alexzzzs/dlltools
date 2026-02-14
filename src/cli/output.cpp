@@ -712,4 +712,64 @@ void OutputFormatter::print_resources(const ResourceTable& resources) {
     }
 }
 
+void OutputFormatter::print_rich(const RichHeader& rich) {
+    if (!rich.is_present()) {
+        if (json_) {
+            std::cout << "{\"present\": false}\n";
+        } else {
+            std::cout << "No Rich Header found in this PE file.\n";
+        }
+        return;
+    }
+    
+    if (json_) {
+        std::cout << "{\n";
+        std::cout << "  \"present\": true,\n";
+        std::cout << "  \"xor_key\": \"0x" << std::hex << rich.xor_key() << std::dec << "\",\n";
+        std::cout << "  \"checksum_valid\": " << (rich.validate_checksum() ? "true" : "false") << ",\n";
+        std::cout << "  \"entries\": [\n";
+        
+        const auto& entries = rich.entries();
+        for (size_t i = 0; i < entries.size(); ++i) {
+            const auto& entry = entries[i];
+            std::cout << "    {\n";
+            std::cout << "      \"id\": " << entry.id << ",\n";
+            std::cout << "      \"version\": " << entry.version << ",\n";
+            std::cout << "      \"count\": " << entry.count << ",\n";
+            std::cout << "      \"tool_name\": \"";
+            print_json_string(std::cout, rich.tool_name(entry.id));
+            std::cout << "\"\n";
+            std::cout << "    }";
+            if (i < entries.size() - 1) std::cout << ",";
+            std::cout << "\n";
+        }
+        
+        std::cout << "  ]\n";
+        std::cout << "}\n";
+    } else {
+        print_section_header("Rich Header");
+        
+        print_kv("Present", "Yes");
+        print_kv("XOR Key", rich.xor_key(), 0, true);
+        print_kv("Checksum Valid", rich.validate_checksum() ? "Yes" : "No");
+        std::cout << "\n";
+        
+        print_section_header("Rich Entries");
+        
+        const auto& entries = rich.entries();
+        if (entries.empty()) {
+            std::cout << "  No entries found.\n";
+        } else {
+            for (const auto& entry : entries) {
+                std::cout << "  Entry:\n";
+                std::cout << "    Tool ID: " << entry.id << " (0x" << std::hex << entry.id << std::dec << ")\n";
+                std::cout << "    Version: " << entry.version << " (0x" << std::hex << entry.version << std::dec << ")\n";
+                std::cout << "    Count: " << entry.count << "\n";
+                std::cout << "    Tool: " << rich.tool_name(entry.id) << "\n";
+                std::cout << "\n";
+            }
+        }
+    }
+}
+
 } // namespace dlltools::cli

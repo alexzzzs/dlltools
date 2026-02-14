@@ -33,6 +33,7 @@ add_executable(dlltools_tests
     test_file_mapping.cpp
     test_resource.cpp
     test_integration.cpp
+    test_rich.cpp
 )
 
 target_link_libraries(dlltools_tests
