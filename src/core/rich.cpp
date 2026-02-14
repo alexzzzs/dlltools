@@ -96,11 +96,15 @@ Result<RichHeader> RichHeader::parse(const PEFile& pe) {
             rich_offset = static_cast<uint32_t>(i);
             
             // XOR key follows the "Rich" marker
-            if (i + 8 <= static_cast<size_t>(e_lfanew)) {
+            // Need at least 4 bytes after "Rich" for the key
+            if (i + 12 <= static_cast<size_t>(e_lfanew)) {
                 std::memcpy(&xor_key, data + i + 4, sizeof(uint32_t));
+                found = true;
+                break;
+            } else {
+                // "Rich" found but not enough room for XOR key - invalid
+                return RichHeader{};
             }
-            found = true;
-            break;
         }
     }
     
@@ -201,82 +205,86 @@ Result<RichHeader> RichHeader::parse(const PEFile& pe) {
 
 std::string RichHeader::tool_name(uint16_t id) {
     // Known tool IDs based on research
-    // These are the product/build numbers used by Visual Studio
+    // These are the product/build numbers used by Microsoft build tools
+    // Reference: https://github.com/ladislav-zezula/StormLib/blob/master/src/stormlib/rich.c
     
     switch (id) {
-        // Visual Studio versions (product IDs)
-        case 0x0000: return "VS2003";
-        case 0x0001: return "VS2005";
-        case 0x0002: return "VS2008";
-        case 0x0003: return "VS2010";
-        case 0x0004: return "VS2012";
-        case 0x0005: return "VS2013";
-        case 0x0006: return "VS2015";
-        case 0x0007: return "VS2017";
-        case 0x0008: return "VS2019";
-        case 0x0009: return "VS2022";
+        // Common tool IDs (basic set)
+        case 0x0000: return "Unknown/VS2003";
+        case 0x0001: return "Unknown/VS2005";
+        case 0x0002: return "Unknown/VS2008";
+        case 0x0003: return "Unknown/VS2010";
+        case 0x0004: return "Unknown/VS2012";
+        case 0x0005: return "Unknown/VS2013";
+        case 0x0006: return "Unknown/VS2015";
+        case 0x0007: return "Unknown/VS2017";
+        case 0x0008: return "Unknown/VS2019";
+        case 0x0009: return "Unknown/VS2022";
         
-        // Common tool IDs
+        // Standard tool IDs
+        case 0x0014: return "lib.exe";
         case 0x0015: return "link.exe";
         case 0x0016: return "cvtres.exe";
         case 0x0017: return "rc.exe";
         case 0x0018: return "cl.exe (C)";
         case 0x0019: return "cl.exe (C++)";
         case 0x001A: return "ml.exe (MASM)";
-        case 0x001B: return "lib.exe";
+        case 0x001B: return "lib.exe (import library)";
         case 0x001C: return "editbin.exe";
         case 0x001D: return "bscmake.exe";
+        case 0x001E: return "hlp.exe";
+        case 0x001F: return "MsJava.exe";
         
-        // VS2008 specific
-        case 0x7864: return "link.exe (VS2008)";
-        case 0x7865: return "cvtres.exe (VS2008)";
-        case 0x7866: return "rc.exe (VS2008)";
-        case 0x7867: return "cl.exe (VS2008)";
+        // VS2008 specific build IDs
+        case 0x7864: return "link.exe";
+        case 0x7865: return "cvtres.exe";
+        case 0x7866: return "rc.exe";
+        case 0x7867: return "cl.exe";
         
-        // VS2010 specific
-        case 0x7D1C: return "link.exe (VS2010)";
-        case 0x7D1D: return "cvtres.exe (VS2010)";
-        case 0x7D1E: return "rc.exe (VS2010)";
-        case 0x7D1F: return "cl.exe (VS2010)";
+        // VS2010 specific build IDs
+        case 0x7D1C: return "link.exe";
+        case 0x7D1D: return "cvtres.exe";
+        case 0x7D1E: return "rc.exe";
+        case 0x7D1F: return "cl.exe";
         
-        // VS2012 specific
-        case 0x82AC: return "link.exe (VS2012)";
-        case 0x82AD: return "cvtres.exe (VS2012)";
-        case 0x82AE: return "rc.exe (VS2012)";
-        case 0x82AF: return "cl.exe (VS2012)";
+        // VS2012 specific build IDs
+        case 0x82AC: return "link.exe";
+        case 0x82AD: return "cvtres.exe";
+        case 0x82AE: return "rc.exe";
+        case 0x82AF: return "cl.exe";
         
-        // VS2013 specific
-        case 0x8754: return "link.exe (VS2013)";
-        case 0x8755: return "cvtres.exe (VS2013)";
-        case 0x8756: return "rc.exe (VS2013)";
-        case 0x8757: return "cl.exe (VS2013)";
+        // VS2013 specific build IDs
+        case 0x8754: return "link.exe";
+        case 0x8755: return "cvtres.exe";
+        case 0x8756: return "rc.exe";
+        case 0x8757: return "cl.exe";
         
-        // VS2015 specific
-        case 0x8C50: return "link.exe (VS2015)";
-        case 0x8C51: return "cvtres.exe (VS2015)";
-        case 0x8C52: return "rc.exe (VS2015)";
-        case 0x8C53: return "cl.exe (VS2015)";
+        // VS2015 specific build IDs
+        case 0x8C50: return "link.exe";
+        case 0x8C51: return "cvtres.exe";
+        case 0x8C52: return "rc.exe";
+        case 0x8C53: return "cl.exe";
         
-        // VS2017 specific (15.0)
-        case 0x9198: return "link.exe (VS2017)";
-        case 0x9199: return "cvtres.exe (VS2017)";
-        case 0x919A: return "rc.exe (VS2017)";
-        case 0x919B: return "cl.exe (VS2017)";
+        // VS2017 specific build IDs (VS 15.x)
+        case 0x9198: return "link.exe";
+        case 0x9199: return "cvtres.exe";
+        case 0x919A: return "rc.exe";
+        case 0x919B: return "cl.exe";
         
-        // VS2019 specific
-        case 0x9648: return "link.exe (VS2019)";
-        case 0x9649: return "cvtres.exe (VS2019)";
-        case 0x964A: return "rc.exe (VS2019)";
-        case 0x964B: return "cl.exe (VS2019)";
+        // VS2019 specific build IDs (VS 16.x)
+        case 0x9648: return "link.exe";
+        case 0x9649: return "cvtres.exe";
+        case 0x964A: return "rc.exe";
+        case 0x964B: return "cl.exe";
         
-        // VS2022 specific
-        case 0x9B58: return "link.exe (VS2022)";
-        case 0x9B59: return "cvtres.exe (VS2022)";
-        case 0x9B5A: return "rc.exe (VS2022)";
-        case 0x9B5B: return "cl.exe (VS2022)";
+        // VS2022 specific build IDs (VS 17.x)
+        case 0x9B58: return "link.exe";
+        case 0x9B59: return "cvtres.exe";
+        case 0x9B5A: return "rc.exe";
+        case 0x9B5B: return "cl.exe";
         
         default:
-            // Try to identify by range
+            // Try to identify tool by build ID ranges
             if (id >= 0x7864 && id <= 0x786F) return "VS2008 Tool";
             if (id >= 0x7D1C && id <= 0x7D2F) return "VS2010 Tool";
             if (id >= 0x82AC && id <= 0x82BF) return "VS2012 Tool";
@@ -285,6 +293,7 @@ std::string RichHeader::tool_name(uint16_t id) {
             if (id >= 0x9198 && id <= 0x91FF) return "VS2017 Tool";
             if (id >= 0x9648 && id <= 0x96FF) return "VS2019 Tool";
             if (id >= 0x9B58 && id <= 0x9BFF) return "VS2022 Tool";
+            if (id >= 0x0014 && id <= 0x001F) return "Build Tool";
             return "Unknown Tool";
     }
 }
